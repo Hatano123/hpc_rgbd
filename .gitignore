@@ -1,0 +1,12 @@
+runs/
+runs_top5/
+*.zip
+*.log
+*.out
+*.err
+.vscode/
+__pycache__/
+yolo_env/
+*.o*
+*.e*
+*.pbs*

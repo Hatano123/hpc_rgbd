@@ -1,0 +1,8 @@
+path: /content/drive/MyDrive/2025_kenkyu/YOLORGBD/datasets/sunrgbd_tiff
+train: images
+val: images
+
+nc: 3
+names: ['chair', 'cup', 'desk']
+
+channels: 4  # RGB-D (depth channel is 4th)

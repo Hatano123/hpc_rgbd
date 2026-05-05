@@ -1,0 +1,13 @@
+
+
+# データセットのルートパス
+path: C:/Users/hayas/Documents/2024/programs/ifm/datasets/rgbd_aligned
+
+# 訓練・検証・テスト用データの場所
+train: images/train
+val: images/valid
+test: images/test
+
+# クラス情報
+nc: 1
+names: ['cup']

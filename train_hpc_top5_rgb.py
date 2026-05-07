@@ -7,7 +7,6 @@ import os
 import torch
 from ultralytics import YOLO
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train YOLO with RGB-only (3ch) images on HPC - SUN RGBD Top5"
@@ -27,12 +26,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache", choices=["false", "disk", "ram"], default="false", help="Dataset cache strategy: false/disk/ram")
     return parser.parse_args()
 
-
 def resolve_device(device_arg: str | None):
     if device_arg is not None:
         return device_arg
     return 0 if torch.cuda.is_available() else "cpu"
-
 
 def main() -> None:
     args = parse_args()
@@ -63,6 +60,7 @@ def main() -> None:
     print("=" * 60 + "\n")
 
     model = YOLO(args.weights)
+    
     # Resolve cache parameter for ultralytics: False | True (disk) | 'ram'
     cache_param = False
     if args.cache == "disk":
@@ -110,7 +108,6 @@ def main() -> None:
     print("=" * 60 + "\n")
 
     return results
-
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-path: C:/Users/chibi/programming/git/YOLORGBD/datasets/sunrgbd_top5_rgb
+path: /home/0/y263357/YOLORGBD/sunrgbd_top5_rgb
 train: images/train
 val: images/val
 nc: 5

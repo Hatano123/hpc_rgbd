@@ -1,5 +1,0 @@
-path: /home/0/y263357/YOLORGBD/sunrgbd_v2
-train: images/train
-val: images/val
-nc: 10
-names: ['chair', 'table', 'picture', 'cabinet', 'pillow', 'books', 'bottle', 'cup', 'sofa', 'box']

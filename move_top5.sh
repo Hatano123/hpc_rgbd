@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q Eduq
 #PBS -l select=1:ncpus=4:ngpus=1:mem=64gb
-#PBS -l walltime=04:00:00
+#PBS -l walltime=7:00:00
 
 set -euo pipefail
 
@@ -173,6 +173,6 @@ else
 fi
 
 ./yolo_env/bin/python -c "import torch; print(f'[INFO] torch={torch.__version__}, cuda_available={torch.cuda.is_available()}')"
-./yolo_env/bin/python -u train_hpc_top5.py --data "$DATA_YAML" --no-rgb-dropout
+./yolo_env/bin/python -u train_hpc_top5.py --data "$DATA_YAML" --log-file "$(pwd)/train_hpc_top5_debug.log"
 
 echo "=== 処理終了: $(date) ==="

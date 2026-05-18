@@ -1,5 +1,8 @@
 runs/
 runs_top5/
+runs_guided/
+runs_marathon/
+runs_reignition/
 *.zip
 *.log
 *.out

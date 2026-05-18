@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
 Train YOLO with RGB-only (3ch) images on HPC - Optimized for SUN RGBD Top5 Dataset
+(Aligned with 4ch Full-Boost settings for fair ablation study)
 """
 import argparse
 import os
 import torch
+import random
 from ultralytics import YOLO
 
 def parse_args() -> argparse.Namespace:
@@ -12,18 +14,20 @@ def parse_args() -> argparse.Namespace:
         description="Train YOLO with RGB-only (3ch) images on HPC - SUN RGBD Top5"
     )
     parser.add_argument("--data", required=True, help="Path to data.yaml")
-    parser.add_argument("--weights", default="yolo11n.pt", help="Initial model weights")
-    parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs")
+    # 【修正1】4chと揃えるため yolov8n.pt をデフォルトに変更
+    parser.add_argument("--weights", default="yolov8n.pt", help="Initial model weights")
+    parser.add_argument("--epochs", type=int, default=300, help="Number of training epochs")
     parser.add_argument("--imgsz", type=int, default=640, help="Training image size")
     parser.add_argument("--batch", type=int, default=16, help="Batch size")
-    parser.add_argument("--workers", type=int, default=2, help="Data loader workers")
-    parser.add_argument("--name", default="hpc_sunrgbd_top5_rgb_e100", help="Run name")
-    parser.add_argument("--project", default=None, help="Output project directory (default: ./runs)")
+    parser.add_argument("--workers", type=int, default=0, help="Data loader workers (0 for HPC safety)")
+    parser.add_argument("--name", default="hpc_sunrgbd_top5_rgb_baseline", help="Run name")
+    parser.add_argument("--project", default=None, help="Output project directory (default: ./runs_rgb)")
     parser.add_argument("--device", default=None, help="Device id or string (default: auto)")
-    parser.add_argument("--augment", action="store_true", help="Enable augmentation")
-    parser.add_argument("--mosaic", type=float, default=1.0, help="Mosaic augmentation ratio")
-    parser.add_argument("--mixup", type=float, default=0.5, help="Mixup augmentation ratio")
-    parser.add_argument("--cache", choices=["false", "disk", "ram"], default="false", help="Dataset cache strategy: false/disk/ram")
+    # 【修正2】Augmentationのデフォルト値を4chと完全に一致させる
+    parser.add_argument("--augment", action="store_true", default=True, help="Enable augmentation")
+    parser.add_argument("--mosaic", type=float, default=0.5, help="Mosaic augmentation ratio")
+    parser.add_argument("--mixup", type=float, default=0.0, help="Mixup augmentation ratio")
+    parser.add_argument("--cache", choices=["false", "disk", "ram"], default="false", help="Dataset cache strategy")
     return parser.parse_args()
 
 def resolve_device(device_arg: str | None):
@@ -39,49 +43,58 @@ def main() -> None:
         raise FileNotFoundError(f"data.yaml not found: {data_yaml}")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    runs_dir = args.project or os.path.join(script_dir, "runs")
+    runs_dir = args.project or os.path.join(script_dir, "runs_rgb")
     device = resolve_device(args.device)
 
     print("\n" + "=" * 60)
-    print("[RGB-Only Training] SUN RGBD Top5 Dataset")
+    print("🔥 [RGB-Only Baseline] SUN RGBD Top5 Dataset")
+    print("🔥 Aligned with 4ch hyperparameters for Fair Comparison")
     print("=" * 60)
-    print(f"Data:     {data_yaml}")
-    print(f"Weights:  {args.weights}")
-    print(f"Epochs:   {args.epochs}")
-    print(f"Batch:    {args.batch}")
-    print(f"Image sz: {args.imgsz}")
-    print(f"Workers:  {args.workers}")
-    print(f"Project:  {runs_dir}/{args.name}")
-    print(f"Device:   {device}")
-    print(f"Augment:  {args.augment}")
-    print(f"Mosaic:   {args.mosaic}")
-    print(f"Mixup:    {args.mixup}")
-    print(f"Cache:    {args.cache}")
-    print("=" * 60 + "\n")
 
     model = YOLO(args.weights)
     
-    # Resolve cache parameter for ultralytics: False | True (disk) | 'ram'
-    cache_param = False
-    if args.cache == "disk":
-        cache_param = True
-    elif args.cache == "ram":
-        cache_param = "ram"
+    # ---------------------------------------------------------
+    # HPC Mosaicバグ回避のパッチ (4chコードと同じ安全装置)
+    # ---------------------------------------------------------
+    try:
+        import ultralytics.data.augment as ua
+        import inspect
 
-    # Basic safety check for ram cache
-    if cache_param == "ram":
-        try:
-            with open('/proc/meminfo', 'r') as f:
-                for line in f:
-                    if line.startswith('MemAvailable:'):
-                        avail_kb = int(line.split()[1])
-                        avail_gb = avail_kb / 1024.0 / 1024.0
-                        if avail_gb < 8.0:
-                            print(f"WARNING: Available memory ~{avail_gb:.1f}GB — ram cache may cause OOM. Consider using disk cache or reducing workers/batch.")
-                        break
-        except Exception:
-            print("WARNING: Could not read /proc/meminfo to assess ram availability. Use ram cache only if you know the machine has sufficient RAM.")
+        def make_safe_get_indexes(orig):
+            def safe_get_indexes(self, *args, **kwargs):
+                try:
+                    return orig(self, *args, **kwargs)
+                except IndexError:
+                    try:
+                        n = getattr(self, 'n', None) or kwargs.get('n', None)
+                        k = (n - 1) if n else kwargs.get('k', 1)
+                        ds = getattr(self, 'dataset', None)
+                        if ds is None:
+                            return []
+                        ds_len = len(getattr(ds, 'im_files', getattr(ds, 'images', [])))
+                        if ds_len <= 0:
+                            return []
+                        return [random.randrange(ds_len) for _ in range(max(1, int(k)))]
+                    except Exception:
+                        return []
+            return safe_get_indexes
 
+        for name, obj in inspect.getmembers(ua, inspect.isclass):
+            if hasattr(obj, 'get_indexes'):
+                orig = getattr(obj, 'get_indexes')
+                try:
+                    setattr(obj, 'get_indexes', make_safe_get_indexes(orig))
+                except Exception:
+                    pass
+        print("✅ DEBUG: Applied augment get_indexes guard for HPC.")
+    except Exception as e:
+        print("⚠️ DEBUG: Could not apply augment guard:", e)
+
+    cache_param = False if args.cache == "false" else (True if args.cache == "disk" else "ram")
+
+    # ---------------------------------------------------------
+    # Training Execution
+    # ---------------------------------------------------------
     results = model.train(
         data=data_yaml,
         epochs=args.epochs,
@@ -93,17 +106,33 @@ def main() -> None:
         exist_ok=True,
         device=device,
         cache=cache_param,
+
+        # --- 【修正3】4chフルブーストと揃えたハイパーパラメータ ---
+        cos_lr=True,          
+        weight_decay=0.001,   
+        patience=0,           
+        amp=False,            
+        # --------------------------------------------------
+
+        # --- 【修正4】4chと揃えたAugmentation ---
         augment=args.augment,
         mosaic=args.mosaic,
         mixup=args.mixup,
-        amp=False,
+        hsv_h=0.015,
+        hsv_s=0.7,
+        hsv_v=0.4,
+        degrees=10.0,
+        fliplr=0.5,
+        # --------------------------------------------------
+
+        save_period=-1,
         save=True,
         val=True,
         verbose=True,
     )
 
     print("\n" + "=" * 60)
-    print("[Training Complete] Results saved to:")
+    print("[Training Complete] RGB Baseline Results saved to:")
     print(f"{runs_dir}/{args.name}")
     print("=" * 60 + "\n")
 

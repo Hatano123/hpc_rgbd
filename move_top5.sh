@@ -119,7 +119,7 @@ if ! ./yolo_env/bin/python -c "import matplotlib, cv2, yaml, requests, scipy, ps
     ./yolo_env/bin/python -m pip install --upgrade --no-warn-script-location \
         --quiet --progress-bar off \
         matplotlib \
-        opencv-python-headless \
+        opencv-contrib-python-headless \
         pyyaml \
         requests \
         scipy \
@@ -173,6 +173,6 @@ else
 fi
 
 ./yolo_env/bin/python -c "import torch; print(f'[INFO] torch={torch.__version__}, cuda_available={torch.cuda.is_available()}')"
-./yolo_env/bin/python -u train_hpc_top5.py --data "$DATA_YAML" --log-file "$(pwd)/train_hpc_top5_debug.log"
+./yolo_env/bin/python -u train_hpc_top5.py --data "$DATA_YAML" --weights "" --log-file "$(pwd)/train_hpc_top5_debug.log"
 
 echo "=== 処理終了: $(date) ==="

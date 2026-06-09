@@ -27,6 +27,15 @@
 - MCF (Multispectral Controllable Fine-Tuning) の実装
 - 実験管理と評価基準の明文化
 
+### 実装済み
+
+- YOLO11 ベースのモデル初期化
+- 既存重みからの MCF 風の重み移植
+- 深度の対数スケーリング
+- モダリティ欠落のカリキュラム制御
+- epoch tracker による train 時のみの dropout 制御
+- 学習用 CLI の拡張
+
 ## TODO
 
 ### Phase 1: データ表現と前処理の整備

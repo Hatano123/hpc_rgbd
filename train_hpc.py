@@ -105,10 +105,14 @@ print("✅ DEBUG: Monkey-patched YOLODataset for 16-bit & HPC Dropout")
 # --- モデル構築時のチャンネル数を強制的に4chにするパッチ ---
 original_init = tasks.DetectionModel.__init__
 def patched_init(self, cfg="yolo11n.yaml", ch=3, nc=None, verbose=True):
-    # cfgが何であれ、常にch=4として初期化する
-    original_init(self, cfg=cfg, ch=4, nc=nc, verbose=verbose)
+    # 環境変数 YOLO_CH によりチャネル数を制御する（デフォルト:4）
+    try:
+        ch_env = int(os.environ.get('YOLO_CH', '4'))
+    except Exception:
+        ch_env = 4
+    original_init(self, cfg=cfg, ch=ch_env, nc=nc, verbose=verbose)
 tasks.DetectionModel.__init__ = patched_init
-print("✅ DEBUG: Monkey-patched DetectionModel.__init__ for ch=4 stability.")
+print("✅ DEBUG: Monkey-patched DetectionModel.__init__ (YOLO_CH env aware).")
 
 # ==========================================
 # 3. 学習実行 (HPC向け)
@@ -116,7 +120,26 @@ print("✅ DEBUG: Monkey-patched DetectionModel.__init__ for ch=4 stability.")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True, help="Path to data.yaml (Provided by HPC bash script)")
+    parser.add_argument("--mode", choices=["rgb","rgbd"], default="rgbd", help="Run mode: rgb or rgbd (default: rgbd)")
+    parser.add_argument("--mosaic", type=float, default=0.0, help="Mosaic probability/strength")
+    parser.add_argument("--mixup", type=float, default=0.0, help="MixUp probability/strength")
+    parser.add_argument("--augment", action='store_true', help="Enable standard augmentations (RGB-only safe)")
+    parser.add_argument("--hsv_h", type=float, default=0.0, help="HSV hue (for RGB only)")
+    parser.add_argument("--hsv_s", type=float, default=0.0, help="HSV sat (for RGB only)")
+    parser.add_argument("--hsv_v", type=float, default=0.0, help="HSV val (for RGB only)")
+    parser.add_argument("--degrees", type=float, default=0.0, help="Rotation degrees")
+    parser.add_argument("--fliplr", type=float, default=0.0, help="Horizontal flip probability")
+    parser.add_argument("--imgsz", type=int, default=640, help="Input image size")
+    parser.add_argument("--batch", type=int, default=16, help="Batch size")
+    parser.add_argument("--epochs", type=int, default=TOTAL_EPOCHS, help="Total epochs")
+    parser.add_argument("--name", type=str, default="hpc_sunrgbd_v1", help="run name")
     args = parser.parse_args()
+
+    # Set YOLO_CH early so patched_init uses correct channels
+    if args.mode == 'rgb':
+        os.environ['YOLO_CH'] = '3'
+    else:
+        os.environ['YOLO_CH'] = '4'
 
     cache_path = args.data.replace("data.yaml", "labels.cache")
     if os.path.exists(cache_path):
@@ -166,29 +189,49 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"⚠️ DEBUG: Could not initialize epoch tracker file: {e}")
     
-    print(f"🚀 HPC Training Start: {TOTAL_EPOCHS} Epochs")
+    print(f"🚀 HPC Training Start: {args.epochs} Epochs (mode={args.mode})")
     
     runs_dir = os.path.join(SCRIPT_DIR, "runs")
-    
+
+    # For RGBD mode, be conservative with augmentations to avoid 4ch bugs.
+    if args.mode == 'rgbd':
+        aug = False
+        mosaic = float(0.0)
+        mixup = float(0.0)
+        hsv_h = 0.0
+        hsv_s = 0.0
+        hsv_v = 0.0
+        degrees = float(args.degrees)
+        fliplr = float(args.fliplr)
+    else:
+        aug = bool(args.augment)
+        mosaic = float(args.mosaic)
+        mixup = float(args.mixup)
+        hsv_h = float(args.hsv_h)
+        hsv_s = float(args.hsv_s)
+        hsv_v = float(args.hsv_v)
+        degrees = float(args.degrees)
+        fliplr = float(args.fliplr)
+
     model.train(
         data=args.data,
-        epochs=TOTAL_EPOCHS,
-        imgsz=640,
-        batch=16,
+        epochs=args.epochs,
+        imgsz=args.imgsz,
+        batch=args.batch,
         project=runs_dir,
-        name="hpc_sunrgbd_v1",
+        name=args.name,
         exist_ok=True,
         device=0 if torch.cuda.is_available() else "cpu",
-        cache=False,        
+        cache=False,
         workers=4,
-        augment=False,   # 4ch対応のため増強をオフ
-        mosaic=0.0,      # Mosaic無効（バッファサイズ不足エラー対策）
-        mixup=0.0,       # Mixup無効（バッファサイズ不足エラー対策）
-        hsv_h=0.0,       # 4chエラー防止のため色相変更はオフ
-        hsv_s=0.0,       # 4chエラー防止のため彩度変更はオフ
-        hsv_v=0.0,       # 4chエラー防止のため明度変更はオフ
-        degrees=0.0,     # 回転はオフ
-        fliplr=0.0,      # 水平反転もオフ（4ch対応のため）
+        augment=aug,
+        mosaic=mosaic,
+        mixup=mixup,
+        hsv_h=hsv_h,
+        hsv_s=hsv_s,
+        hsv_v=hsv_v,
+        degrees=degrees,
+        fliplr=fliplr,
         save_period=-1,
         save=True,
         verbose=True,

@@ -14,6 +14,8 @@
 
 処理順とコマンドはdocs/WORKFLOW.md、残した便利な機能はdocs/FEATURES.mdにまとめています。
 
+YOLO11nのアーキテクチャ、4ch入力への変更、事前学習重みの初期化、出力の意味はdocs/ARCHITECTURE.mdを参照してください。
+
 ## まず動かす
 
 ```powershell

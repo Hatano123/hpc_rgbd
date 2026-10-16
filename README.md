@@ -40,6 +40,8 @@ flowchart LR
 
 具体的な手順は [docs/WORKFLOW.md](docs/WORKFLOW.md)、引継ぎは [HANDOVER.md](HANDOVER.md)、残した機能は [docs/FEATURES.md](docs/FEATURES.md) にあります。
 
+モデル構造と4ch対応の説明は [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) を参照してください。Backbone・Neck・Detectの役割、入力形状、事前学習重みの移植方法を記載しています。
+
 ## 個別に使う
 
 ```sh

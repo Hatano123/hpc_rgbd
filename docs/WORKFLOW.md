@@ -6,6 +6,8 @@
 
 ## 入力データ
 
+撮影からラベル付け・学習用フォルダの作成までの手順は [MAKE_DATASET.md](MAKE_DATASET.md) を参照してください。
+
 ```text
 source_dataset/
   images/train/*.tiff

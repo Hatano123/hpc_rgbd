@@ -45,6 +45,8 @@ python 00_capture_rgbd.py --frames 10 --no-preview
 
 **撮影画像には正解ラベルがありません。** 自分の撮影データで学習・評価するには、物体の枠を付けてYOLOラベルを作り、images/train・images/valと同名のlabels/train・labels/valへ分割してから、settings.yamlのsource_datasetを指定します。撮影しただけでは01～04用のラベル付きデータにはなりません。
 
+ラベルの書式、フォルダ分割、data.yamlとsettings.yamlの具体例は [データの作り方](MAKE_DATASET.md) にまとめています。
+
 保存済みTIFFを検出するだけなら、正解ラベルは不要です。
 
 ```sh

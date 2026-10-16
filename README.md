@@ -43,4 +43,4 @@ python 04_evaluate_model.py   # 正解と比較してAP・mAPを計算
 
 準備済みデータが同じなら01は再利用します。別の実験を残す場合は、settings.yamlの各保存先を変更してください。過去のコードは `legacy/`、詳細説明は `docs/` に分けています。
 
-[詳しい実行手順](docs/WORKFLOW.md) · [YOLOの構造](docs/ARCHITECTURE.md) · [その他の機能](docs/FEATURES.md) · [引継ぎ](HANDOVER.md)
+[データの作り方](docs/MAKE_DATASET.md) · [詳しい実行手順](docs/WORKFLOW.md) · [YOLOの構造](docs/ARCHITECTURE.md) · [その他の機能](docs/FEATURES.md) · [引継ぎ](HANDOVER.md)

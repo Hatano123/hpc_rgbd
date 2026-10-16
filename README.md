@@ -21,6 +21,8 @@ source_dataset: samples/sunrgbd_top5
 
 ## 実行方法
 
+カメラ撮影の仮入口（RealSense想定・実機未確認）もあります。`python 00_capture_rgbd.py` で開き、Spaceで保存、Qで終了します。対応SDKが必要です。[カメラの説明](docs/CAMERA.md)
+
 ```sh
 python 01_prepare_data.py     # 入力確認・データ整形
 python 02_train_model.py      # 4ch学習

@@ -14,6 +14,8 @@
 
 処理順とコマンドはdocs/WORKFLOW.md、残した便利な機能はdocs/FEATURES.mdにまとめています。
 
+カメラの仮入口は00_capture_rgbd.pyです。RealSense SDKで深度をRGBへ位置合わせして保存し、--modelで既存の4ch推論にも接続します。機種未確定・実機未確認であり、確認済みの学習・検出経路とは区別します。使い方はdocs/CAMERA.mdを参照してください。
+
 YOLO11nのアーキテクチャ、4ch入力への変更、事前学習重みの初期化、出力の意味はdocs/ARCHITECTURE.mdを参照してください。
 
 ## まず動かす

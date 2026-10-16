@@ -2,6 +2,7 @@
 
 | 機能 | 現在の使い方 |
 |---|---|
+| カメラ撮影・ライブ検出（仮） | `python 00_capture_rgbd.py`。RealSense想定・実機未確認。CAMERA.md参照 |
 | 普通のRGB-D 4ch学習 | `python 02_train_model.py`、YOLO11n、前処理共通化 |
 | RGBのみの比較学習 | `train --mode rgb`、専用の3ch画像データを使用 |
 | 少量データでの一通り確認 | `demo` |

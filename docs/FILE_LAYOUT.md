@@ -2,6 +2,8 @@
 
 通常の操作で見る入口は、ルートの4つのPythonファイルとsettings.yamlに絞りました。計算処理はrgbd_yolo内で共通化し、入口ごとに学習ロジックを複製していません。
 
+撮影用の仮入口として00_capture_rgbd.pyを追加しています。RealSense向けで実機未確認のため、詳細と制約はCAMERA.mdを参照してください。
+
 | 以前の場所 | 現在の場所・代わりの入口 |
 |---|---|
 | train_hpc.py、train_hpc_top5.py | 02_train_model.py。旧ラッパーはlegacy/compatibility/ |

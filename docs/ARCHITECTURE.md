@@ -10,7 +10,7 @@
 flowchart TD
     I[画素対応済みRGBと深度] --> P[単位換算・線形正規化]
     P --> T[4ch Tensor: B,G,R,D]
-    T --> C[入力Conv: 4chから16chへ]
+    T --> C[標準の先頭Conv: 特徴マップを16枚生成]
     C --> B[Backbone: Conv・C3k2・SPPF・C2PSA]
     B --> N[特徴の結合: Upsample・Concat・C3k2]
     N --> P3[P3: stride 8]
@@ -24,6 +24,20 @@ flowchart TD
 ```
 
 RGBと深度を入力の時点で結合する **early fusion（入力段階での融合）** です。RGB用・深度用に別々のネットワークを持つ構造ではありません。最初の層から、色と深度を合わせた特徴を学習します。
+
+### 「16ch」と「16bit」は別のもの
+
+図の16枚は、YOLO内部の**特徴マップの枚数**です。8bit画像を16bitで保存した話とは関係ありません。
+
+| 用語 | 何を数えるか | このリポジトリでの例 |
+|---|---|---|
+| 8bit / 16bit / 32bit | 1つの数値を表現するビット数 | 保存画像はuint16、学習時の入力はfloat32 |
+| 3ch / 4ch | 入力画素に持たせる値の種類・数 | 色3値、または色3値＋深度1値 |
+| 16chの特徴 | 畳み込みで作る特徴マップの枚数 | YOLO11nの先頭Convが出力する16枚 |
+
+標準のYOLO11nは元々「色3ch → 特徴16ch」です。今回の独自変更は「色3ch＋深度1chを受け取れるようにする」ことであり、出力側の16という値は変更していません。16bit化のために16chを追加したわけでも、画像を16枚複製しているわけでもありません。
+
+保存値を8bit相当から16bit表現へ拡張する処理は、モデルに入る前のデータ保存形式の話です。読み込み時にその保存倍率を戻し、float32で正規化してからYOLOへ渡します。
 
 ## 1. 入力は何か
 
@@ -104,8 +118,10 @@ model = DetectionModel(cfg, nc=self.data['nc'], ch=4, verbose=verbose)
 YOLO11nの最初のConvは次のようになります。
 
 ```text
-通常の3ch: Conv2d(3, 16, kernel_size=3, stride=2, padding=1)
-現在の4ch: Conv2d(4, 16, kernel_size=3, stride=2, padding=1)
+標準のYOLO11n: Conv2d(3, 16, kernel_size=3, stride=2, padding=1)
+今回の変更後:  Conv2d(4, 16, kernel_size=3, stride=2, padding=1)
+                       ↑  ↑
+                 変更した側  標準のまま
 ```
 
 入力チャンネルが1つ増えても、この層の出力は16chのままなので、後続のBackbone・Neck・Detectには通常と同じ形状の特徴を渡せます。モデル全体を4chのまま流し続けるわけではありません。

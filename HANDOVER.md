@@ -21,12 +21,15 @@ YOLO11nのアーキテクチャ、4ch入力への変更、事前学習重みの�
 ```powershell
 Set-Location C:/Users/chibi/programming/git/hpc_rgbd
 $env:PYTHONUTF8='1'
-python -m rgbd_yolo demo --output work/my_simple_demo
+python 01_prepare_data.py
+python 02_train_model.py
+python 03_detect_objects.py
+python 04_evaluate_model.py
 ```
 
-このPCでは既存の `C:/Users/chibi/programming/git/YOLORGBD/datasets/sunrgbd_top5` から学習8枚と検証4枚をコピーします。入力元は変更しません。別のPCは `--source` が必要です。Gitには新しいサンプル画像・学習重みを追加しません。
+共通設定はルートのsettings.yamlです。このPCでは既存の `C:/Users/chibi/programming/git/YOLORGBD/datasets/sunrgbd_top5` から学習8枚と検証4枚をコピーします。入力元は変更しません。別のPCはsettings.yamlのsource_datasetを指定してください。Gitには新しいサンプル画像・学習重みを追加しません。
 
-結果は指定先のREPORT.mdです。学習用の小さいデータ、RGB＋正解と深度のプレビュー、整形後の配列例、モデル、検出画像、評価JSONを段階ごとに保存します。
+初期のデータ・検出・評価結果はwork/quickstart、学習結果はruns/quickstartです。学習用の小さいデータ、RGB＋正解と深度のプレビュー、整形後の配列例、モデル、検出画像、評価JSONを段階ごとに保存します。
 
 ## データ仕様
 
@@ -52,7 +55,7 @@ python -m rgbd_yolo demo --output work/my_simple_demo
 
 ## 旧コードと変更点
 
-元の77ファイルはlegacyへ無改変で保存し、元チェックアウトとの一致を確認しました。全件対応表はdocs/FILE_MAP.mdです。主要な旧学習ファイル名はCLIラッパーとして残しています。関数のimport互換性や全旧引数は維持していません。
+元の77ファイルはlegacyへ無改変で保存し、元チェックアウトとの一致を確認しました。全件対応表はdocs/FILE_MAP.mdです。旧CLIラッパーもlegacy/compatibilityへ整理しました。入口は01_prepare_data.py、02_train_model.py、03_detect_objects.py、04_evaluate_model.pyです。現在の配置はdocs/FILE_LAYOUT.mdを参照してください。関数のimport互換性や全旧引数は維持していません。
 
 以前の途中テストは対数変換・max_fillなどを使っていましたが、現在のコードでは使用しません。過去のテスト用重み・設定は今回の簡略化版の実験結果と混ぜず、新しいdemoで再学習してください。
 

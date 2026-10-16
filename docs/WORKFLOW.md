@@ -1,86 +1,81 @@
-# データ入力から評価まで
+# 段階別の実行手順
 
-## 1. データ入力
+リポジトリのルートにあるsettings.yamlを編集し、4つのPythonファイルを順に実行します。引数を毎回書く必要はありません。
 
-画素対応済みの4ch TIFFとYOLO形式ラベルを使用します。
+## 入力データ
 
 ```text
-dataset/
+source_dataset/
   images/train/*.tiff
   images/val/*.tiff
   labels/train/*.txt
   labels/val/*.txt
-  data.yaml
+  data.yaml              クラス名。ない場合はconfigs/class_names.yamlを使用
 ```
 
 画像とラベルは同じファイル名の拡張子違いです。ラベル1行は `class_id x_center y_center width height`、座標は0～1です。
 
-入力元には手を加えず、指定枚数を別の場所へコピーします。seedを固定して同じ部分集合を選びます。
+## 01: 入力確認・データ整形
 
 ```sh
-python -m rgbd_yolo prepare --source /path/to/sunrgbd_top5 --output work/subset --train-count 8 --val-count 4 --seed 0
+python 01_prepare_data.py
 ```
 
-元データにdata.yamlがない場合、既定ではリポジトリのTop5クラス定義を使用します。別クラスなら `--classes /path/classes.yaml` を指定してください。
+settings.yamlで指定した入力元から学習・検証画像をコピーします。元データは変更しません。画像形状・ラベルの形式と範囲・画像数を確認します。
 
-## 2. データ整形
+前処理はRGBの保存倍率、深度の保存倍率、深度上限の3項目だけです。今回の形式はRGB保存値÷256、深度保存値÷8→mm、深度を0～8000mmでクリップして線形正規化します。欠損補完や人工的なゼロ化はありません。
 
-既定のSUN RGB-D TIFFプロファイルで行うことは、以下の単位変換と線形正規化です。
+内部ではHWC・BGRD・0～255の配列を作り、モデル入力時にBCHW・0～1に変換します。学習と検出・評価で同じ前処理を使います。
 
-```text
-RGB保存値 / 256                         → BGRの8bit強度
-Depth保存値 / 8                         → 深度mm
-clip(深度mm, 0, 8000) / 8000             → 深度0～1
-BGR / 255 と深度0～1を結合               → [B,G,R,D]
-学習・推論に渡すTensor                   → [batch,4,height,width]
-```
+出力先の初期値は `work/quickstart/data` です。
 
-内部の画像配列は0～255、Tensor化する段階で÷255します。前処理はtrain/val/predictで共通です。深度の0値を他の値で埋めたり、チャンネルをランダムにゼロにしたりしません。深度の対数変換もありません。
-
-`prepare` では次の確認用ファイルも出力します。学習はコピーしたTIFFを共通前処理で読み、NPZは確認用です。
-
-| 出力 | 内容 |
+| ファイル | 確認すること |
 |---|---|
+| preview.jpg | RGB＋正解枠と深度を左右に並べた画像 |
+| input_report.json | 選択画像、クラス別物体数、設定、SHA256 |
 | data.yaml | 学習・検証の分割とクラス、channels: 4 |
 | preprocess.yaml | 保存倍率と深度上限 |
-| preview.jpg | 左: RGBと正解枠、右: 正規化後の深度 |
-| sample_preprocessed.npz | 実際の整形済み4ch配列の例 |
-| input_report.json | 選択画像、SHA256、枚数、クラス別物体数、設定 |
+| sample_preprocessed.npz | 整形済み配列の確認用例 |
 
-プレビューの深度の色は表示用で、追加の入力チャンネルではありません。
+学習はコピーしたTIFFを共通ローダで読みます。NPZは確認用です。01の再実行時は、入力と設定が一致する整形済みデータを確認して再利用します。
 
-## 3. 4ch学習
+## 02: 4ch学習
 
 ```sh
-python -m rgbd_yolo train --data work/subset/data.yaml --config work/subset/preprocess.yaml --epochs 2 --imgsz 160 --batch 2 --name quick --no-plots
+python 02_train_model.py
 ```
 
-`runs/quick/weights/best.pt` と `last.pt`、損失などの `results.csv`、設定と実行環境の `manifest.json` が出ます。通常解像度の本学習は `--imgsz 640`、エポック数やbatchを実行環境に合わせて変更します。
+01で作ったdata.yamlとpreprocess.yamlを読み込みます。初期重みはweights/yolo11n.ptです。標準YOLO11nの入力層を4chへ拡張し、深度も含めて学習します。
 
-RGBだけとの比較は `train --mode rgb`。3ch画像用の別data.yamlを指定します。4ch画像から勝手に深度を削除する処理ではありません。
+初期の出力先は `runs/quickstart`。`weights/best.pt`、`weights/last.pt`、損失のresults.csv、実行設定のmanifest.jsonを保存します。モデルには前処理設定も保存します。
 
-## 4. 検出
+## 03: 検出
 
 ```sh
-python -m rgbd_yolo predict --model runs/quick/weights/best.pt --images work/subset/images/val --imgsz 160 --output work/detections
+python 03_detect_objects.py
 ```
 
-画像ごとに `prediction.jpg` と `detections.json`、フォルダ全体に `index.json` を出します。予測の枠、クラス名、信頼度を確認できます。1枚だけなら `--image` を使います。正解ラベルを使用しないのが検出です。
+02のbest.ptを読み込み、準備した検証画像を一括検出します。別の重みを使う場合はsettings.yamlのmodel_fileを指定します。
 
-## 5. 評価
+初期の出力先は `work/quickstart/detections`。画像ごとのフォルダにprediction.jpgとdetections.json、全体にindex.jsonを保存します。正解ラベルを使わず予測する段階です。
+
+## 04: 評価
 
 ```sh
-python -m rgbd_yolo val --model runs/quick/weights/best.pt --data work/subset/data.yaml --imgsz 160 --output work/evaluation
+python 04_evaluate_model.py
 ```
 
-正解ラベルと検出結果を比較し、Precision、Recall、AP50、AP50-95、mAPを計算します。`metrics.json` とクラス別の `SUMMARY.md`、Ultralyticsの評価図を保存します。分割に正解がないクラスは評価できません。
+モデルを検証用画像と正解ラベルで評価します。03の検出JSONを再利用するのではなく、評価用の設定で推論し直して計測します。03は画像の確認、04は指標の計算という独立した段階です。
 
-入力整形が正しいこと、学習できること、精度が良いことはそれぞれ別の確認です。8枚・2 epochで良い精度になることは期待せず、まず各段階がつながるかを確認します。
+初期の出力先は `work/quickstart/evaluation`。metrics.json、クラス別SUMMARY.md、評価図を保存します。Precision、Recall、AP50、AP50-95、mAPを確認してください。正解物体がないクラスは評価できません。
 
-## 一通り自動実行
+## 再実行と別の実験
 
-```sh
-python -m rgbd_yolo demo --source /path/to/sunrgbd_top5 --output work/demo_01
-```
+- 02以降はその段階だけ実行できます。準備データや重みがない場合は、実行すべき前の段階を表示してエラーにします。
+- すべてのスクリプトが `--settings 別の設定.yaml` に対応します。相対パスは設定ファイルの場所が基準です。
+- データ選択の設定・入力が変わる場合はdata_directoryを変えます。過去のモデルを残す場合はtraining_directoryを変えます。
+- 初期値は動作確認用です。8枚・2 epochの結果で精度の良し悪しは判断できません。
 
-途中経過が1/5～5/5で表示され、最後に `work/demo_01/REPORT.md` が出ます。再実行時は `--output work/demo_02` のように新しい出力先を使います。
+## 内部処理を直接呼ぶ場合
+
+従来の `python -m rgbd_yolo prepare/train/predict/val/demo` も残しています。個別の細かい引数が必要な場合だけ使用してください。

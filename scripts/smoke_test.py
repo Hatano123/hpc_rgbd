@@ -68,7 +68,7 @@ def main():
         delta = (trainer.model.model[0].conv.weight.detach()[:, 3] - initial[0][:, 3]).abs().max()
         evidence['depth_weight_max_change'] = float(delta)
 
-    model = YOLO('yolo11n.yaml').load(str(ROOT / 'yolo11n.pt'))
+    model = YOLO('yolo11n.yaml').load(str(ROOT / 'weights/yolo11n.pt'))
     model.add_callback('on_pretrain_routine_end', instrument)
     model.add_callback('on_train_batch_end', batch)
     model.add_callback('on_train_epoch_end', epoch)

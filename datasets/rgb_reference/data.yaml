@@ -1,0 +1,5 @@
+train: images/train
+val: images/val
+nc: 5
+channels: 3
+names: ['chair', 'picture', 'cabinet', 'books', 'table']

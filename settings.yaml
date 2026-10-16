@@ -1,0 +1,24 @@
+# まずはこの設定で小さく試せます。通常の4ch学習のみを行います。
+# パスはこのsettings.yamlが置かれたフォルダを基準に解決します。
+
+# 入力元。nullなら、このPCの隣のYOLORGBD/datasets/sunrgbd_top5を探します。
+source_dataset: null
+data_directory: work/quickstart/data
+class_names: configs/class_names.yaml
+preprocessing: configs/sunrgbd_tiff.yaml
+train_count: 8
+val_count: 4
+seed: 0
+
+# 学習。まず2 epoch・160pxで動作確認。本学習時は変更してください。
+training_directory: runs/quickstart
+epochs: 2
+image_size: 160
+batch_size: 2
+workers: 0
+device: cpu
+
+# 検出・評価。nullなら上の学習結果のweights/best.ptを使います。
+model_file: null
+detection_directory: work/quickstart/detections
+evaluation_directory: work/quickstart/evaluation

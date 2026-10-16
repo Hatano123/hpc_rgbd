@@ -1,0 +1,2 @@
+# SUN RGB-D Top5の4chデータで使うクラス順です。
+names: [chair, cabinet, picture, books, table]

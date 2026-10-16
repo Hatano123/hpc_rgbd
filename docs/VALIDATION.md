@@ -1,5 +1,22 @@
 # シンプルな4ch学習の検証
 
+## 番号付きPython入口の確認
+
+2026-10-16、以下の4本をsettings.yamlの初期値のまま、引数なしで順番に実行しました。学習8枚・検証4枚、160px、batch=2、2 epochで全段階が完了しています。
+
+```sh
+python 01_prepare_data.py
+python 02_train_model.py
+python 03_detect_objects.py
+python 04_evaluate_model.py
+```
+
+01の再実行では、設定・元画像・コピー画像・ラベルを確認して準備データを再利用できることも確認しました。単体テスト7件には、設定を変えた場合とコピー画像を変更した場合に再利用を拒否する確認を含めています。
+
+出力先はwork/quickstart/data、runs/quickstart、work/quickstart/detections、work/quickstart/evaluationです。現在の重みはweights/yolo11n.ptを使います。以下の既存記録は、同じ内部処理の以前の実行結果です。
+
+## 内部処理の確認記録
+
 2026-10-16（日本時間）、Windows / Python 3.13.14 / PyTorch 2.11.0+cpu / Ultralytics 8.4.31 / OpenCV 4.13.0.92。
 
 最終仕様は、人工的なゼロ化・欠落・欠損補完・非線形深度変換を使用しない4ch学習です。過去の途中テストと区別して、以下を再実行しました。

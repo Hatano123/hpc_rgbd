@@ -1,3 +1,2 @@
-/move_top5.sh text eol=lf
 /scripts/hpc/*.pbs text eol=lf
 /legacy/** -text

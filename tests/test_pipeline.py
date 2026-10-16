@@ -3,8 +3,10 @@ import tempfile
 import unittest
 import cv2
 import numpy as np
+from dataclasses import replace
 from rgbd_yolo.pipeline import prepare_subset, read_labels
 from rgbd_yolo.preprocessing import PreprocessConfig
+from rgbd_yolo.steps import Settings, reuse_prepared_data
 
 
 class PipelineTests(unittest.TestCase):
@@ -25,6 +27,16 @@ class PipelineTests(unittest.TestCase):
             self.assertTrue((output / 'preview.jpg').is_file())
             self.assertEqual(np.load(output / 'sample_preprocessed.npz')['image'].shape, (32, 40, 4))
             self.assertEqual(before, {path: path.read_bytes() for path in source.rglob('*') if path.is_file()})
+            classes = root / 'classes.yaml'
+            classes.write_text('names: [chair]\n')
+            settings = Settings(train_count=2, val_count=1, seed=3)
+            self.assertTrue(reuse_prepared_data(output, source, settings, PreprocessConfig(), classes))
+            with self.assertRaises(ValueError):
+                reuse_prepared_data(output, source, replace(settings, seed=4), PreprocessConfig(), classes)
+            copied = next((output / 'images/train').glob('*.tiff'))
+            copied.write_bytes(b'changed')
+            with self.assertRaises(ValueError):
+                reuse_prepared_data(output, source, settings, PreprocessConfig(), classes)
             with self.assertRaises(FileExistsError):
                 prepare_subset(source, output, PreprocessConfig(), ['chair'], 2, 1)
             with self.assertRaises(ValueError):

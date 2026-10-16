@@ -1,91 +1,69 @@
-# 引継ぎ資料 — YOLORGBD (SUN RGBD Top5 RGB-only)
+# 引継ぎ資料 — hpc_rgbd
 
-このドキュメントはこのリポジトリの引継ぎを目的としています。重要なファイル、セットアップ、実行手順、トラブルシューティング、今後のTODOをまとめています。
+更新日: 2026-10-16（日本時間）
 
-## 概要
-- **目的**: SUN RGBD Top5 データセットの RGB のみを用いた YOLO ベースの学習・評価を行うプロジェクト。
-- **主な成果物**: 学習スクリプト、HPC 用ジョブスクリプト、データセットアーカイブ（zip）、学習出力（`runs/`）
+作業先: `C:/Users/chibi/programming/git/hpc_rgbd`
 
-＃＃＃最重要項目
-qsubで投げてスパコンのGPUを使い訓練します。
-また、これはRGBDの学習でRGBを超える精度を出すことを目標にしています。
-オープンデータで学習
+リポジトリ: https://github.com/Hatano123/hpc_rgbd
 
+基点コミット: `7c9b7e5b0da0579f09aa35556dc8598dd0262904`
 
-レポジトリ最重要ファイル
-/home/0/y263357/YOLORGBD/train_hpc_top5.py　RGBD訓練スクリプト
-/home/0/y263357/YOLORGBD/move_top5.sh　訓練スクリプト実行スクリプト
+## 現在の仕様
 
+ユーザーの最終指定は「特殊なゼロ化・欠落・欠損処理をせず、普通に4ch学習できること」です。RGBと深度は画素対応済みを前提に、保存値の単位変換と線形正規化だけを行います。元データの0値は補完しません。機種は不明で、RealSenseと断定していません。
 
-## リポジトリ主要ファイル
-- **README（トレーニング用）**: [README_top5_rgb_training.md](README_top5_rgb_training.md)
-- **メイン学習スクリプト**: [train_hpc_top5_rgb.py](train_hpc_top5_rgb.py)
-- **HPC ジョブスクリプト**: [train_hpc_top5_rgb.sh](train_hpc_top5_rgb.sh)
-- **ローカル実行スクリプト**: [run_top5_rgb_local.sh](run_top5_rgb_local.sh)
-- **依存関係**: [requirements.txt](requirements.txt), [requirements_hpc.txt](requirements_hpc.txt)
-- **仮想環境セットアップ**: [setup_pyenv_yolo_env.sh](setup_pyenv_yolo_env.sh)
-- **データ（ローカル）**: `sunrgbd_top5_rgb.zip`（リポジトリルートに配置）
+処理順とコマンドはdocs/WORKFLOW.md、残した便利な機能はdocs/FEATURES.mdにまとめています。
 
+## まず動かす
 
-
-
-## 環境と依存関係
-- Python 仮想環境: リポジトリ内の `yolo_env` を想定。`./setup_pyenv_yolo_env.sh` で作成。
-- 依存パッケージ: `requirements.txt`（軽量）, `requirements_hpc.txt`（HPC 用追加）
-- Torch / Ultralytics: HPC 実行時は永続領域にインストールせず、`TMPDIR`（一時領域）にインストールする仕組みを採用しています（`train_hpc_top5_rgb.sh` の方針）。
-
-## データ準備
-- リポジトリルートに `sunrgbd_top5_rgb.zip` を置くと、HPC スクリプトが TMPDIR に展開します。
-- 展開後、スクリプトは `data.yaml` を検出してパスを書き換えます（`train_hpc_top5_rgb.sh` 内の処理）。
-
-## 実行方法
-
-**HPC（PBS）**
-
-例: デフォルトで 100 エポック
-
-qsub を用いてジョブを投げます。
-
-```
-EPOCHS=100 qsub train_hpc_top5_rgb.sh
+```powershell
+Set-Location C:/Users/chibi/programming/git/hpc_rgbd
+$env:PYTHONUTF8='1'
+python -m rgbd_yolo demo --output work/my_simple_demo
 ```
 
-環境変数で上書き可能: `EPOCHS`, `BATCH_SIZE`, `IMG_SIZE`, `DATA_YAML`, `DEVICE` など。
+このPCでは既存の `C:/Users/chibi/programming/git/YOLORGBD/datasets/sunrgbd_top5` から学習8枚と検証4枚をコピーします。入力元は変更しません。別のPCは `--source` が必要です。Gitには新しいサンプル画像・学習重みを追加しません。
 
-**ローカル実行**
+結果は指定先のREPORT.mdです。学習用の小さいデータ、RGB＋正解と深度のプレビュー、整形後の配列例、モデル、検出画像、評価JSONを段階ごとに保存します。
 
+## データ仕様
+
+- 4ch TIFF: OpenCVでB,G,R,Dとして読み込み。今回のローカル形式はRGB保存値÷256、深度保存値÷8でmmへ変換。
+- 深度上限8000mmでクリップし、線形に正規化。対数・平方根変換はありません。
+- RGB＋深度PNGのペア: RGBは8bit強度、深度はmm。TIFF用の倍率は適用しません。
+- 保存形式が違う場合はconfigs/のdivisorを合わせます。ToFの旧生成コードにはRGB×257・深度mmという別形式もあるので、既定設定をそのまま適用しないでください。
+- チャンネル数・形状・ラベル範囲を検証しますが、実際の画素対応は元の生成仕様と境界の重ね合わせで別途確認が必要です。
+
+## モジュール
+
+| ファイル | 責務 |
+|---|---|
+| preprocessing.py | 単位換算・線形正規化 |
+| dataset.py | 4ch画像とラベルを学習用に読み込む |
+| training.py | 4chモデル構築・重み移植・検証 |
+| inference.py | Tensor入力と元画像座標での検出結果 |
+| evaluation.py | 評価指標とクラス別結果の保存 |
+| pipeline.py | 部分データ準備、プレビュー、一連のデモ |
+| cli.py | prepare/train/predict/val/demo/inspectの入口 |
+
+新しい重みに前処理設定を保存し、検出と評価で読み戻します。グローバルなクラスの書き換えはしません。
+
+## 旧コードと変更点
+
+元の77ファイルはlegacyへ無改変で保存し、元チェックアウトとの一致を確認しました。全件対応表はdocs/FILE_MAP.mdです。主要な旧学習ファイル名はCLIラッパーとして残しています。関数のimport互換性や全旧引数は維持していません。
+
+以前の途中テストは対数変換・max_fillなどを使っていましたが、現在のコードでは使用しません。過去のテスト用重み・設定は今回の簡略化版の実験結果と混ぜず、新しいdemoで再学習してください。
+
+## HPC
+
+```sh
+qsub -v DATA_YAML=/path/data.yaml,PYTHON_CMD=/path/to/prepared/python,DEVICE=0 scripts/hpc/train.pbs
 ```
-./run_top5_rgb_local.sh
-# または
-python train_hpc_top5_rgb.py --data sunrgbd_top5_rgb/data.yaml --epochs 100
-```
 
-## 主要スクリプトの役割
-- `train_hpc_top5_rgb.py`: Ultralytics YOLO を用いた学習処理。本プロジェクトでは 4ch の設定に揃えたハイパーパラメータや HPC 向けの安全策（augment get_indexes ガード）を含む。
-- `train_hpc_top5_rgb.sh`: PBS 用バッチ。TMPDIR にデータと torch/ultralytics を展開して学習を実行する。ログは TMPDIR に出力。
-- `run_top5_rgb_local.sh`: ローカルでの簡易実行用ラッパー。
+Torchを永続領域へ置かず、既存のTMPDIR運用を継続します。PBSスクリプトではネットワークインストールやZIP展開を自動実行しません。データとホストに合うPyTorchを事前準備してください。HPC/実機では今回テストしていません。
 
-## 出力と保存先
-- 学習結果は `runs/` 以下に保存されます（`project`/`name` に応じてディレクトリが生成される）。
+## 確認と次の作業
 
-## よくある問題と対処
-- zip が見つからない: リポジトリルートに `sunrgbd_top5_rgb.zip` があるか確認。
-- `data.yaml` が見つからない: ZIP 展開後に `data.yaml` が存在するか、`train_hpc_top5_rgb.sh` のログ（TMPDIR）を確認。
-- GPU メモリ不足: `BATCH_SIZE` を小さくする。
-- pip install 周りのエラー: HPC 環境では SSL モジュールやネットワーク制限があるため、`yolo_env` の Python で `import ssl` が失敗しないことを確認。
+ローカルCPUでの4ch学習、深度への勾配・重み更新、チェックポイントの保存・再ロード、検出、評価を確認します。実行記録はdocs/VALIDATION.mdへ記載します。少量の動作確認なので、RGBより精度が高いとは判断しません。
 
-## 運用上の注意（重要）
-- 本リポジトリは「Torch を永続領域に置かない」運用方針になっています。`train_hpc_top5_rgb.sh` は `TMPDIR` に `torch` と `ultralytics` をインストールします。この慣習はユーザープリファレンスに基づいています。
-- 一時領域のクリーンアップは `trap` で行われますが、ジョブが異常終了した場合に残るファイルを確認してください。
-
-## 未解決のTODO / 引継ぎポイント
-- `requirements_hpc.txt` の最小化とバージョン固定（再現性向上）
-- テストデータでの簡易 CI スクリプト作成
-- 実験ログのメタデータ（ハイパーパラや git commit）を自動で保存する仕組みの導入
-
-## 連絡先 / 補足
-- 質問や追加のドキュメントが要る場合はこのリポジトリの主要開発者に問い合わせてください（連絡先は別途共有）。
-
----
-
-作成日: 2026-06-09
+次は保存倍率・深度単位・実際の画素対応を確定し、その後に全データ・通常解像度でRGBとRGB-Dを同じ条件で比較します。GPU/HPC、複数worker、分散学習、センサ接続は別途確認が必要です。

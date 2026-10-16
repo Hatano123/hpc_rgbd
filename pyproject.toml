@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hpc-rgbd"
+version = "0.1.0"
+description = "YOLO training and inference on pixel-aligned RGB-D data"
+requires-python = ">=3.13"
+dependencies = ["ultralytics==8.4.31", "numpy==2.4.3", "opencv-python==4.13.0.92", "PyYAML==6.0.3"]
+
+[project.scripts]
+rgbd-yolo = "rgbd_yolo.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rgbd_yolo*"]

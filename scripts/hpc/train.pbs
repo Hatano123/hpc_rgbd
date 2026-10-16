@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -q Eduq
+#PBS -l select=1:ncpus=4:ngpus=1:mem=64gb
+#PBS -l walltime=7:00:00
+set -euo pipefail
+: "${PBS_O_WORKDIR:?Submit from repository root}"
+: "${DATA_YAML:?Specify dataset YAML via qsub -v DATA_YAML=/path/data.yaml}"
+cd "$PBS_O_WORKDIR"
+export PYTHONUNBUFFERED=1
+exec "${PYTHON_CMD:-python}" -m rgbd_yolo train \
+  --data "$DATA_YAML" --mode "${MODE:-rgbd}" \
+  --device "${DEVICE:-0}" --workers "${WORKERS:-0}" \
+  --epochs "${EPOCHS:-150}" --batch "${BATCH:-16}" \
+  --imgsz "${IMGSZ:-640}" --name "${RUN_NAME:-hpc_aligned_rgbd}" \
+  --project "$PBS_O_WORKDIR/runs" "$@"

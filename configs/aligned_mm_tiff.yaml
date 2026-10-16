@@ -1,0 +1,4 @@
+# TIFF whose RGB channels are 8-bit intensities and depth is already millimetres.
+rgb_divisor: 1.0
+depth_divisor: 1.0
+max_depth_mm: 8000.0

@@ -1,0 +1,4 @@
+# Verified local TIFF encoding; this is not a sensor's native depth format.
+rgb_divisor: 256.0
+depth_divisor: 8.0
+max_depth_mm: 8000.0

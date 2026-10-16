@@ -1,0 +1,83 @@
+# 旧ファイル対応表
+
+原本を削除せずlegacyへ移しました。legacyは履歴参照用で、実行互換性は保証しません。相対パス・外部機器・固定パスへの依存が残っています。
+
+| 旧パス | 保存先 |
+|---|---|
+| `HANDOVER.md` | `legacy/root/HANDOVER.md` |
+| `README_top5_rgb_training.md` | `legacy/root/README_top5_rgb_training.md` |
+| `TODO_top5_rgbd_strategy.md` | `legacy/root/TODO_top5_rgbd_strategy.md` |
+| `analyze_results.py` | `legacy/root/analyze_results.py` |
+| `check_norm_tmp.sh` | `legacy/root/check_norm_tmp.sh` |
+| `code/CalibrationTOF-RGB copy.py` | `legacy/tof_and_experiments/CalibrationTOF-RGB copy.py` |
+| `code/CalibrationTOF-RGB.py` | `legacy/tof_and_experiments/CalibrationTOF-RGB.py` |
+| `code/MakeDatasetHokan.py` | `legacy/tof_and_experiments/MakeDatasetHokan.py` |
+| `code/MakeDatasetHokanCC.py` | `legacy/tof_and_experiments/MakeDatasetHokanCC.py` |
+| `code/Modelmap.py` | `legacy/tof_and_experiments/Modelmap.py` |
+| `code/README.md` | `legacy/tof_and_experiments/README.md` |
+| `code/aa.py` | `legacy/tof_and_experiments/aa.py` |
+| `code/collect_ifm3d.py` | `legacy/tof_and_experiments/collect_ifm3d.py` |
+| `code/collect_ifm3dAuto.py` | `legacy/tof_and_experiments/collect_ifm3dAuto.py` |
+| `code/collect_ifm3d_dual_light.py` | `legacy/tof_and_experiments/collect_ifm3d_dual_light.py` |
+| `code/data.yaml` | `legacy/tof_and_experiments/data.yaml` |
+| `code/dataset.yaml` | `legacy/tof_and_experiments/dataset.yaml` |
+| `code/debug_depth_visualization.py` | `legacy/tof_and_experiments/debug_depth_visualization.py` |
+| `code/debug_json.py` | `legacy/tof_and_experiments/debug_json.py` |
+| `code/debug_structure.py` | `legacy/tof_and_experiments/debug_structure.py` |
+| `code/diag_coords.py` | `legacy/tof_and_experiments/diag_coords.py` |
+| `code/extract_dataset.py` | `legacy/tof_and_experiments/extract_dataset.py` |
+| `code/find_source.py` | `legacy/tof_and_experiments/find_source.py` |
+| `code/folder_detect.py` | `legacy/tof_and_experiments/folder_detect.py` |
+| `code/folder_detect_3ch.py` | `legacy/tof_and_experiments/folder_detect_3ch.py` |
+| `code/handover.md` | `legacy/tof_and_experiments/handover.md` |
+| `code/inference_simple.py` | `legacy/tof_and_experiments/inference_simple.py` |
+| `code/manual_calibration.py` | `legacy/tof_and_experiments/manual_calibration.py` |
+| `code/overlay_rgb_depth_tiff.py` | `legacy/tof_and_experiments/overlay_rgb_depth_tiff.py` |
+| `code/realtime_confidence_compare.py` | `legacy/tof_and_experiments/realtime_confidence_compare.py` |
+| `code/realtime_rgb_detect.py` | `legacy/tof_and_experiments/realtime_rgb_detect.py` |
+| `code/realtime_rgbd_detect10FPS.py` | `legacy/tof_and_experiments/realtime_rgbd_detect10FPS.py` |
+| `code/rgbd_dataset.yaml` | `legacy/tof_and_experiments/rgbd_dataset.yaml` |
+| `code/tmp_debug_local.py` | `legacy/tof_and_experiments/tmp_debug_local.py` |
+| `code/train.py` | `legacy/tof_and_experiments/train.py` |
+| `code/train_3ch.py` | `legacy/tof_and_experiments/train_3ch.py` |
+| `code/train_4ch.py` | `legacy/tof_and_experiments/train_4ch.py` |
+| `code/train_4ch_Mosaic.py` | `legacy/tof_and_experiments/train_4ch_Mosaic.py` |
+| `code/train_colab.py` | `legacy/tof_and_experiments/train_colab.py` |
+| `code/train_hpc.py` | `legacy/tof_and_experiments/train_hpc.py` |
+| `code/web_inference_server.py` | `legacy/tof_and_experiments/web_inference_server.py` |
+| `code/yolov8-rgbd-4ch.yaml` | `legacy/tof_and_experiments/yolov8-rgbd-4ch.yaml` |
+| `code/yolov8-rgbd.yaml` | `legacy/tof_and_experiments/yolov8-rgbd.yaml` |
+| `code/yolov8n-4ch.yaml` | `legacy/tof_and_experiments/yolov8n-4ch.yaml` |
+| `code/yolov8n-rgbd copy.yaml` | `legacy/tof_and_experiments/yolov8n-rgbd copy.yaml` |
+| `code/yolov8n-rgbd-detect.yaml` | `legacy/tof_and_experiments/yolov8n-rgbd-detect.yaml` |
+| `code/yolov8n-rgbd.yaml` | `legacy/tof_and_experiments/yolov8n-rgbd.yaml` |
+| `code/yolov8n.pt` | `legacy/tof_and_experiments/yolov8n.pt` |
+| `environment.yml` | `legacy/root/environment.yml` |
+| `extract.py` | `legacy/root/extract.py` |
+| `folder_detect.py` | `legacy/root/folder_detect.py` |
+| `gpu_probe.sh` | `legacy/root/gpu_probe.sh` |
+| `inspect_dataset.py` | `legacy/root/inspect_dataset.py` |
+| `move.sh` | `legacy/root/move.sh` |
+| `move_simple.sh` | `legacy/root/move_simple.sh` |
+| `move_top5.sh` | `legacy/root/move_top5.sh` |
+| `probe.sh` | `legacy/root/probe.sh` |
+| `run.sh` | `legacy/root/run.sh` |
+| `run_3ch.sh` | `legacy/root/run_3ch.sh` |
+| `run_3ch_tmp_pip.sh` | `legacy/root/run_3ch_tmp_pip.sh` |
+| `run_experiment_rgb.sh` | `legacy/root/run_experiment_rgb.sh` |
+| `run_experiment_rgbd.sh` | `legacy/root/run_experiment_rgbd.sh` |
+| `run_move_3ch.sh` | `legacy/root/run_move_3ch.sh` |
+| `run_top5_rgb_local.sh` | `legacy/root/run_top5_rgb_local.sh` |
+| `run_top5_rgb_simple.sh` | `legacy/root/run_top5_rgb_simple.sh` |
+| `setup_pyenv_yolo_env.sh` | `legacy/root/setup_pyenv_yolo_env.sh` |
+| `test.sh` | `legacy/root/test.sh` |
+| `test_gpu.sh` | `legacy/root/test_gpu.sh` |
+| `train_hpc.py` | `legacy/root/train_hpc.py` |
+| `train_hpc_3ch.py` | `legacy/root/train_hpc_3ch.py` |
+| `train_hpc_top5.py` | `legacy/root/train_hpc_top5.py` |
+| `train_hpc_top5_rgb.py` | `legacy/root/train_hpc_top5_rgb.py` |
+| `train_hpc_top5_rgb.sh` | `legacy/root/train_hpc_top5_rgb.sh` |
+| `train_hpc_top5_submit.sh` | `legacy/root/train_hpc_top5_submit.sh` |
+| `train_hpc_top5_test.sh` | `legacy/root/train_hpc_top5_test.sh` |
+| `verify_normalization_tmp.py` | `legacy/root/verify_normalization_tmp.py` |
+| `yolov8n-4ch.yaml` | `legacy/root/yolov8n-4ch.yaml` |

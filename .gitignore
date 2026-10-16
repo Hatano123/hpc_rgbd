@@ -13,3 +13,10 @@ yolo_env/
 *.o*
 *.e*
 *.pbs*
+!scripts/hpc/*.pbs
+work/
+.venv/
+*.egg-info/
+*.cache
+build/
+dist/

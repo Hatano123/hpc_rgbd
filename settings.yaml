@@ -1,8 +1,8 @@
 # まずはこの設定で小さく試せます。通常の4ch学習のみを行います。
 # パスはこのsettings.yamlが置かれたフォルダを基準に解決します。
 
-# 入力元。nullなら、このPCの隣のYOLORGBD/datasets/sunrgbd_top5を探します。
-source_dataset: null
+# 同梱のSUN RGB-Dサンプル12枚。自分のデータを使うときだけ変更します。
+source_dataset: samples/sunrgbd_top5
 data_directory: work/quickstart/data
 class_names: configs/class_names.yaml
 preprocessing: configs/sunrgbd_tiff.yaml

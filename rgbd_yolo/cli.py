@@ -20,7 +20,7 @@ def parser():
     commands = result.add_subparsers(dest='command', required=True)
     for command in ['prepare', 'demo']:
         cmd = commands.add_parser(command, help='Prepare a checked subset' if command == 'prepare' else 'Run input -> preparation -> training -> detection -> evaluation')
-        cmd.add_argument('--source', help='Local dataset root; demo can discover ../YOLORGBD/datasets/sunrgbd_top5')
+        cmd.add_argument('--source', help='Dataset root; default: bundled samples/sunrgbd_top5')
         cmd.add_argument('--output', default='work/sunrgbd_demo' if command == 'demo' else 'work/sunrgbd_subset')
         cmd.add_argument('--config', default=str(ROOT / 'configs/sunrgbd_tiff.yaml'))
         cmd.add_argument('--classes', default=str(ROOT / 'configs/class_names.yaml'), help='Fallback class YAML when source/data.yaml is absent')

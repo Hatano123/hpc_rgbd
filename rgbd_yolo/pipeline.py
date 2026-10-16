@@ -16,10 +16,10 @@ def find_source(source, repository):
         if not path.is_dir():
             raise FileNotFoundError(path)
         return path
-    candidate = repository.parent / 'YOLORGBD/datasets/sunrgbd_top5'
-    if candidate.is_dir():
-        return candidate.resolve()
-    raise FileNotFoundError('No local SUN RGB-D data found. Supply --source /path/to/sunrgbd_top5; images are not bundled in Git.')
+    for candidate in [repository / 'samples/sunrgbd_top5', repository.parent / 'YOLORGBD/datasets/sunrgbd_top5']:
+        if candidate.is_dir():
+            return candidate.resolve()
+    raise FileNotFoundError('No SUN RGB-D samples found. Supply --source /path/to/sunrgbd_top5.')
 
 
 def read_labels(path, class_count):

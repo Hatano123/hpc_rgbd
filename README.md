@@ -11,13 +11,13 @@ Python 3.13と、CPU/GPUに合うPyTorchを用意し、リポジトリのルー�
 python -m pip install -r requirements.txt
 ```
 
-`settings.yaml` の `source_dataset` を、画素対応済み4ch TIFFとYOLOラベルのあるフォルダへ変更します。
+**4chのSUN RGB-Dサンプル12枚を同梱しています。初期設定のまま試せます。**
 
 ```yaml
-source_dataset: C:/path/to/sunrgbd_top5
+source_dataset: samples/sunrgbd_top5
 ```
 
-入力元には `images/train`、`images/val`、`labels/train`、`labels/val` が必要です。このPCでは `source_dataset: null` のまま隣の既存SUN RGB-Dデータを利用できます。
+自分のデータを使う場合だけ、settings.yamlのsource_datasetを変更してください。入力元には `images/train`、`images/val`、`labels/train`、`labels/val` が必要です。
 
 ## 実行方法
 

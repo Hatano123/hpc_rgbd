@@ -1,0 +1,10 @@
+train: images/train
+val: images/val
+nc: 5
+names:
+- chair
+- cabinet
+- picture
+- books
+- table
+channels: 4

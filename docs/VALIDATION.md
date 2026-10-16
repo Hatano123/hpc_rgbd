@@ -1,5 +1,13 @@
 # シンプルな4ch学習の検証
 
+## 同梱4chサンプルでの再現確認
+
+samples/sunrgbd_top5へ学習8枚・検証4枚のTIFFとラベル、設定、画像SHA256一覧を追加しました。settings.yamlの初期値はこのサンプルです。
+
+Gitのステージに入っているファイルだけを別フォルダへ展開し、外部データへのパスがない状態で01～04の4本を引数なしで順に実行しました。データ準備、2 epochの4ch学習、4枚の一括検出、評価がすべて成功しました。単体テストも8件成功しています。
+
+依存Python環境を用意すれば、別のPCでも追加のデータ取得や入力パス変更なしで少量テストを始められます。学習済みのテスト用重みや実行結果はGitに含めていません。
+
 ## 番号付きPython入口の確認
 
 2026-10-16、以下の4本をsettings.yamlの初期値のまま、引数なしで順番に実行しました。学習8枚・検証4枚、160px、batch=2、2 epochで全段階が完了しています。
@@ -45,7 +53,7 @@ python -m rgbd_yolo demo --source /path/to/sunrgbd_top5 --output work/demo_02
 python scripts/smoke_test.py --source /path/to/sunrgbd_top5 --output work/gradient_02
 ```
 
-このPCではdemoのsource省略時に隣のYOLORGBD/datasets/sunrgbd_top5を探します。他の環境はsourceを明示してください。既存の出力を保護するため、demo/prepareでは空の出力先を使います。
+現在は同梱のsamples/sunrgbd_top5を初期入力にしています。demoのsource省略時も同梱サンプルを優先します。既存の出力を保護するため、demo/prepareでは空の出力先を使います。
 
 ## ローカル結果
 

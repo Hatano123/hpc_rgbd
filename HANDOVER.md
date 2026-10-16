@@ -27,7 +27,7 @@ python 03_detect_objects.py
 python 04_evaluate_model.py
 ```
 
-共通設定はルートのsettings.yamlです。このPCでは既存の `C:/Users/chibi/programming/git/YOLORGBD/datasets/sunrgbd_top5` から学習8枚と検証4枚をコピーします。入力元は変更しません。別のPCはsettings.yamlのsource_datasetを指定してください。Gitには新しいサンプル画像・学習重みを追加しません。
+共通設定はルートのsettings.yamlです。同梱のsamples/sunrgbd_top5から学習8枚と検証4枚をコピーします。別のPCでも初期設定のまま試せます。元は既存ローカルのSUN RGB-D由来4chデータから抽出したサンプルで、画像・ラベル・設定・SHA256一覧をGitに含めています。学習済みのテスト用重みはGitに追加しません。
 
 初期のデータ・検出・評価結果はwork/quickstart、学習結果はruns/quickstartです。学習用の小さいデータ、RGB＋正解と深度のプレビュー、整形後の配列例、モデル、検出画像、評価JSONを段階ごとに保存します。
 

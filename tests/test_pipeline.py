@@ -4,12 +4,19 @@ import unittest
 import cv2
 import numpy as np
 from dataclasses import replace
-from rgbd_yolo.pipeline import prepare_subset, read_labels
+from rgbd_yolo.pipeline import find_source, prepare_subset, read_labels
 from rgbd_yolo.preprocessing import PreprocessConfig
 from rgbd_yolo.steps import Settings, reuse_prepared_data
 
 
 class PipelineTests(unittest.TestCase):
+    def test_bundled_samples_are_discovered_without_external_data(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repository = Path(temp) / 'repository'
+            bundled = repository / 'samples/sunrgbd_top5'
+            bundled.mkdir(parents=True)
+            self.assertEqual(find_source(None, repository), bundled.resolve())
+
     def test_preparation_validates_copies_and_preserves_original(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -1,0 +1,70 @@
+{
+  "dataset": "SUN RGB-D, locally prepared 4-channel TIFF subset",
+  "counts": {
+    "train": 8,
+    "val": 4
+  },
+  "purpose": "Small pipeline smoke test, not an accuracy benchmark",
+  "samples": [
+    {
+      "image": "images/train/sunrgbd_train_00082.tiff",
+      "label": "labels/train/sunrgbd_train_00082.txt",
+      "sha256": "09905ac20d051ff59a04bfa8ca1f1bdeb7860cad2921f19d8b465e19b07589e7"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00530.tiff",
+      "label": "labels/train/sunrgbd_train_00530.txt",
+      "sha256": "a1b61d6590cf7fdb719a0f10303068a6ddef5f48d47f2c98d2788d7bed14f5e0"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00621.tiff",
+      "label": "labels/train/sunrgbd_train_00621.txt",
+      "sha256": "df5b26a41bcd46a0b418b327caae9e2253eefed0a7475fa3d41953f31190d6f3"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00788.tiff",
+      "label": "labels/train/sunrgbd_train_00788.txt",
+      "sha256": "1f017d526bc503e461b30d809f40d031e258fa1024afb29a13cf166cb63b49cd"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00829.tiff",
+      "label": "labels/train/sunrgbd_train_00829.txt",
+      "sha256": "d243e335be6f3e350743c7dcc13cbb9445f575e16d77256bef8847ba266cb666"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00861.tiff",
+      "label": "labels/train/sunrgbd_train_00861.txt",
+      "sha256": "01106789ec37df0a6ecb5b1d727b3e2eb8824c9073a1e57db842aa884eab9426"
+    },
+    {
+      "image": "images/train/sunrgbd_train_00995.tiff",
+      "label": "labels/train/sunrgbd_train_00995.txt",
+      "sha256": "b7f7fc136edfdddd68e9e418ee477c68005613ff98cd61fd605d5d25223ddf75"
+    },
+    {
+      "image": "images/train/sunrgbd_train_01047.tiff",
+      "label": "labels/train/sunrgbd_train_01047.txt",
+      "sha256": "21e116a4d651470658da5c23b69e6b264874fef45f85fcb25f6cc72e7376c208"
+    },
+    {
+      "image": "images/val/sunrgbd_val_00223.tiff",
+      "label": "labels/val/sunrgbd_val_00223.txt",
+      "sha256": "cf2c7621cb7d1d99ee8e95e5c57a9db7887bcbdb131e9d270327f59064143292"
+    },
+    {
+      "image": "images/val/sunrgbd_val_00366.tiff",
+      "label": "labels/val/sunrgbd_val_00366.txt",
+      "sha256": "cb17540988c61dfb51d9842cc626e131178bbe410232baba919a0459b5c93a38"
+    },
+    {
+      "image": "images/val/sunrgbd_val_00488.tiff",
+      "label": "labels/val/sunrgbd_val_00488.txt",
+      "sha256": "567b50a193d747bee070c494a3e5c43d90bc36d01d2024b4d42c4847b2fe9046"
+    },
+    {
+      "image": "images/val/sunrgbd_val_00597.tiff",
+      "label": "labels/val/sunrgbd_val_00597.txt",
+      "sha256": "9dbf4ed52a0e50a6238ba06a051ecd76339b4427a46f44a38a11a81268cca7f4"
+    }
+  ]
+}
